@@ -39,6 +39,10 @@ import ProjectReport from "./components/Report/ProjectReport";
 import TaskReport from "./components/Report/TaskReport";
 import Accounting from "./components/Budget/Accounting";
 import Dashboard from "./components/Department/Dashboard";
+import AddProject from "./components/Job/AddProject";
+import AddSalary from "./components/Payroll/AddSalary";
+import AddHoliday from "./components/Notification/AddHoliday";
+import AddAttendance from "./components/Task/AddAttendance";
 
 
 const App = () => {
@@ -60,7 +64,6 @@ const App = () => {
           <Route path='/department' element={<AdminDepartmentView/>}/>
           <Route path="/report" element={<Report/>}/>
           <Route path="/user" element={<UserReport/>}/>
-          <Route path="/report" element={<Report/>}/>
           <Route path="/expense" element={<ExpenseReport/>}/>
           <Route path="/project" element={<ProjectReport/>}/>
           <Route path="/task" element={<TaskReport/>}/>
@@ -92,6 +95,10 @@ const App = () => {
         <Route path='/chat' element={<ChatUI/>}/>
         <Route path='/training' element={<TrainerList/>}/>
         <Route path='/holidays' element={<Holidays/>}/>
+        <Route path='/addproject' element={<AddProject/>}/>
+        <Route path='/addsalary' element={<AddSalary/>}/>
+        <Route path='/addholiday' element={<AddHoliday/>}/>
+        <Route path='/addattendance' element={<AddAttendance/>}/>
 
         <Route path='/login' element={<AdminLogin/>}/>
 

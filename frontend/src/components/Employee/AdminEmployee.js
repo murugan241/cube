@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, Card, FormControl, InputAdornment, InputLabel, OutlinedInput, Select, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, TextField, Pagination, Paper, Grid,Dialog } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { Link, useNavigate } from 'react-router-dom';
@@ -15,6 +15,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
 import { Checkbox, IconButton } from '@mui/material';
 import Layout from '../Common_Bar/Layout';
+import { API_BASE_URL } from '../../config/api';
 
 
 
@@ -46,6 +47,26 @@ const AdminEmployee = () => {
     const [deleteOpen, setDeleteOpen] = useState(false);
     const navigate=useNavigate();
 
+    const fetchEmployees = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/employees`);
+        if (response.ok) {
+          const dbEmployees = await response.json();
+          if (dbEmployees && dbEmployees.length > 0) {
+            const dbStaffIds = new Set(dbEmployees.map(e => e.staffId || e.staff_id));
+            const remainingDefault = adminTable.filter(e => !dbStaffIds.has(e.staffId));
+            setData([...dbEmployees, ...remainingDefault]);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not fetch employees from backend:", err);
+      }
+    };
+
+    useEffect(() => {
+      fetchEmployees();
+    }, []);
+
     const handlenavigate=()=>{
       navigate('/editemployee');
     }
@@ -63,7 +84,7 @@ const AdminEmployee = () => {
     const filterData = () => {
         return data.filter(staffMember => {
             const matchesSearch = Object.values(staffMember).some(value => 
-                value.toString().toLowerCase().includes(searchTerm)
+                value ? value.toString().toLowerCase().includes(searchTerm) : false
             );
             const matchesStaffFilter = staff ? staffMember.role === staff : true;
             return matchesSearch && matchesStaffFilter;
@@ -92,8 +113,13 @@ const AdminEmployee = () => {
     setDeleteOpen(true);
   };
 
-  const handleDeleteEmployee = (staffId) => {
-    const updatedData = data.filter(employee => employee.staffId !== staffId);
+  const handleDeleteEmployee = async (staffId) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/employees/${staffId}`, { method: 'DELETE' });
+    } catch (err) {
+      console.error("Failed to delete employee on backend:", err);
+    }
+    const updatedData = data.filter(employee => (employee.staffId || employee.staff_id) !== staffId);
     setData(updatedData);
     console.log(`Employee with staff ID ${staffId} has been deleted.`);
     setDeleteOpen(false);
@@ -243,7 +269,20 @@ const AdminEmployee = () => {
           {dialogContent}
         </Dialog>
         
-        <Dialog open={deleteOpen} onClose={handleCloseDialog} PaperProps={{ sx: { width: '75%', maxWidth: 'none', height: '542px', borderRadius: "25px", boxShadow: "5px 4px 50px 5px #3354F44D" } }}>
+        <Dialog 
+          open={deleteOpen} 
+          onClose={handleCloseDialog} 
+          PaperProps={{ 
+            sx: { 
+              width: '100%', 
+              maxWidth: '400px', 
+              borderRadius: '16px', 
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04)',
+              overflow: 'hidden',
+              mx: 2
+            } 
+          }}
+        >
           <DeleteEmployee selectedEmployee={selectedEmployee} onDelete={handleDeleteEmployee} onClose={handleCloseDialog}/>        
         </Dialog>
       </Layout>
